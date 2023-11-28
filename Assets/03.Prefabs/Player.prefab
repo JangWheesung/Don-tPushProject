@@ -259,7 +259,9 @@ GameObject:
   - component: {fileID: -4044774680067872517}
   - component: {fileID: 4967356660489045532}
   - component: {fileID: 2476303567750315217}
+  - component: {fileID: 6927271505826325986}
   - component: {fileID: 7914907131891243262}
+  - component: {fileID: 8583826229862855219}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -348,7 +350,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _inputReader: {fileID: 11400000, guid: bff4493bc1a5e854f8857614fceb89bd, type: 2}
-  _movementSpeed: 8
+  _movementSpeed: 0.5
+  _dashSpeed: 30
+  maxVelocity: 10
+  _rigidbody2D: {fileID: 0}
 --- !u!50 &6488623134294376586
 Rigidbody2D:
   serializedVersion: 4
@@ -435,6 +440,41 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.45, y: 0.9}
+  m_Direction: 0
+--- !u!70 &6927271505826325986
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4483059367163071228}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.5, y: 1}
   m_Direction: 0
 --- !u!114 &7914907131891243262
@@ -449,12 +489,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11abbb2dbdb00ef468b45c8dd7000efe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  safeRangeTrs: {fileID: 0}
-  safeRangeRadius: 10
-  safeRangeLayer:
-    serializedVersion: 2
-    m_Bits: 64
   deleteIDTime: 3
+--- !u!114 &8583826229862855219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4483059367163071228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01f1064f0fb99764eb9ee743efafe9f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5971273134483504514
 GameObject:
   m_ObjectHideFlags: 0

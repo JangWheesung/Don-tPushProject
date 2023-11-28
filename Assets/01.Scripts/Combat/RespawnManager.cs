@@ -24,13 +24,18 @@ public class RespawnManager : NetworkBehaviour
     private void HandlePlayerDeSpawn(Player player)
     {
         ulong killerID = player.HealthCompo.LastHitDealerID;
+        ulong beenID = player.HealthCompo.beenID;
+        Debug.Log(killerID);
+
         UserData killerUserdata = ServerSingleton.Instance.NetServer.GetUserDataByClientID(killerID);
         UserData victimUserData = ServerSingleton.Instance.NetServer.GetUserDataByClientID(player.OwnerClientId);
-
         if(victimUserData != null)
         {
-            Debug.Log($"{victimUserData.username} is dead by {killerUserdata.username} [{killerID}]");
-            rankBoardBehaviour.HandleChangeScore(killerID);
+            if (killerID != beenID)
+            {
+                Debug.Log($"{victimUserData.username} is dead by {killerUserdata.username} [{killerID}]");
+                rankBoardBehaviour.HandleChangeScore(killerID);
+            }
 
             //실제로 서버에서 3초후 리스폰 되도록 함수를 만들어
             StartCoroutine(DelayRespawn(player.OwnerClientId));

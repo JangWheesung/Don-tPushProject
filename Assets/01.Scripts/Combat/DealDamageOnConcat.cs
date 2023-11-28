@@ -12,10 +12,12 @@ public class DealDamageOnContact : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.attachedRigidbody == null || playerMovement.isDash) return;
-
+        Debug.Log("Trigger");
+        if (collision.attachedRigidbody == null || !playerMovement.isDash) return;
+        Debug.Log("NotReturn");
         if (collision.attachedRigidbody.TryGetComponent<Health>(out Health health))
         {
+            Debug.Log("TakeID");
             health.TakeID(OwnerClientId);
         }
     }

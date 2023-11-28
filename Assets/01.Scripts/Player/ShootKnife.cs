@@ -26,13 +26,13 @@ public class ShootKnife : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
-        _inputReader.ShootEvent += HandleShootKnife;
+        _inputReader.DashEvent += HandleShootKnife;
     }
 
     public override void OnNetworkDespawn()
     {
         if (!IsOwner) return;
-        _inputReader.ShootEvent -= HandleShootKnife;
+        _inputReader.DashEvent -= HandleShootKnife;
     }
 
     private void HandleShootKnife()

@@ -15,10 +15,11 @@ public class Health : NetworkBehaviour
 
     public ulong LastHitDealerID { get; private set; }
 
-    public const ulong beenID = 0;
+    public ulong beenID { get; private set; }
 
     private void Awake()
     {
+        beenID = 0;
         LastHitDealerID = beenID;
     }
 
@@ -35,7 +36,7 @@ public class Health : NetworkBehaviour
     public void TakeID(ulong dealerID)
     {
         if (_isDead) return;
-
+        Debug.Log("NoDead");
         LastHitDealerID = dealerID;
 
         if (resetCoroutine != null)
@@ -48,6 +49,7 @@ public class Health : NetworkBehaviour
     private IEnumerator DeleteID()
     {
         yield return new WaitForSeconds(deleteIDTime);
+        Debug.Log("ReBeen");
         LastHitDealerID = beenID;
     }
 }

@@ -13,20 +13,20 @@ public class Player : NetworkBehaviour
     public static event Action<Player> OnPlayerSpawned;
     public static event Action<Player> OnPlayerDeSpawned;
 
-    private NetworkObject networkObject;
-
     public Health HealthCompo { get; private set; }
     private NetworkVariable<FixedString32Bytes> _username = new NetworkVariable<FixedString32Bytes>();
 
     private void Awake()
     {
-        networkObject = GetComponent<NetworkObject>();
         HealthCompo = GetComponent<Health>();
     }
 
     private void HandleDie(Health health) //죽는효과
     {
-        networkObject.Despawn();
+        if (IsServer)
+        {
+            Destroy(gameObject);
+        }
         //여기다가 파티클이나 뭐 죽는 효과 같은게 나와야겠지만...일단은.
     }
 
