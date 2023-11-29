@@ -43,7 +43,7 @@ public class PlayerMovement : NetworkBehaviour
 
     private void HandleDash()
     {
-        if (_movementInput == Vector2.zero || isDash) return;
+        if (_rigidbody2D.velocity == Vector2.zero || isDash) return;
 
         isDash = true;
         _rigidbody2D.velocity = _movementInput * _dashSpeed;
@@ -62,6 +62,11 @@ public class PlayerMovement : NetworkBehaviour
         _playerAnimation.SetMove(_rigidbody2D.velocity.magnitude > 0.1f); 
         _playerAnimation.FlipController( _rigidbody2D.velocity.x );
 
+        Velocity();
+    }
+
+    private void Velocity()
+    {
         if (!IsOwner) return;
         if (isDash) return;
 
@@ -73,11 +78,22 @@ public class PlayerMovement : NetworkBehaviour
             _rigidbody2D.velocity += new Vector2(desiredVelocity.x, 0);
         }
 
-        // y 방향으로의 제한
         if ((_rigidbody2D.velocity.y < maxVelocity && _movementInput.y > 0) ||
             (_rigidbody2D.velocity.y > -maxVelocity && _movementInput.y < 0))
         {
             _rigidbody2D.velocity += new Vector2(0, desiredVelocity.y);
+        }
+
+        if (_movementInput.x == 0 && _rigidbody2D.velocity.x != 0)
+        {
+            float symbol = _rigidbody2D.velocity.x > 0 ? -1f : 1f;
+            _rigidbody2D.velocity += new Vector2(symbol * _movementSpeed / 2, 0);
+        }
+
+        if (_movementInput.y == 0 && _rigidbody2D.velocity.y != 0)
+        {
+            float symbol = _rigidbody2D.velocity.y > 0 ? -1f : 1f;
+            _rigidbody2D.velocity += new Vector2(0, symbol * _movementSpeed / 2);
         }
     }
 }
