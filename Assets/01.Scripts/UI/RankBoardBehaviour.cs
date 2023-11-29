@@ -93,14 +93,14 @@ public class RankBoardBehaviour : NetworkBehaviour
 
 
     //서버가 이걸 실행하는거임. 클라는 안건드려
-    public void HandleChangeScore(ulong clientID)
+    public void HandleChangeScore(ulong clientID, bool reset = false)
     {
         for(int i = 0; i < _rankList.Count; ++i)
         {
             if (_rankList[i].clientID != clientID) continue;
 
             var oldItem = _rankList[i];
-            var oldScore = oldItem.score;
+            var oldScore = reset == true ? -1 : oldItem.score;
             _rankList[i] = new RankBoardEntityState
             {
                 clientID = clientID,
@@ -109,9 +109,6 @@ public class RankBoardBehaviour : NetworkBehaviour
             };
             break;
         }
-        //_rankUIList.Sort();
-        //_rankList.
-        //_rankList.Sort((x, y) => x.score.CompareTo(y.score));
     }
 
 
@@ -139,15 +136,16 @@ public class RankBoardBehaviour : NetworkBehaviour
         // 선택 : 갱신후에는 UIList를 정렬하고 
         // 정렬된 순서에 맞춰서 실제 UI의 순서도 변경한다.
         // RemoveFromParent => Add
-        _rankUIList.Sort((x, y) => x.nowScore.CompareTo(y.nowScore));
+        _rankUIList.Sort((x, y) => y.nowScore.CompareTo(x.nowScore));
         for (int i = 0; i < _rankUIList.Count; i++)
         {
             var ui = _rankUIList[i];
-            //ui.SetText(i + 1, ui.p);
+            ui.SetText(i + 1, ui.nowUsername, ui.nowScore);
+            ui.transform.SetSiblingIndex(i);
         }
-        }
+    }
 
-        private void AddUIToList(RankBoardEntityState value)
+    private void AddUIToList(RankBoardEntityState value)
     {
         //중복이 있는지 검사후에 만들어서 
         var target = _rankUIList.Find(x => x.clientID == value.clientID);

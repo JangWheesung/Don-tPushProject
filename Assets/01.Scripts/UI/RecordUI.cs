@@ -8,8 +8,8 @@ public class RecordUI : MonoBehaviour
     public ulong clientID;
 
     public int nowRank { get; private set; }
+    public string nowUsername { get; private set; }
     public int nowScore { get; private set; }
-    public int nowUsername { get; private set; }
 
     private void Awake()
     {
@@ -23,6 +23,8 @@ public class RecordUI : MonoBehaviour
 
     public void SetText(int rank, string username, int score)
     {
+        nowRank = rank;
+        nowUsername = username;
         nowScore = score;
         _recordText.SetText($"{rank.ToString()} . {username} [ {score.ToString()} ]");
     }

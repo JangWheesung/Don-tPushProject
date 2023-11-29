@@ -35,6 +35,7 @@ public class RespawnManager : NetworkBehaviour
             {
                 Debug.Log($"{victimUserData.username} is dead by {killerUserdata.username} [{killerID}]");
                 rankBoardBehaviour.HandleChangeScore(killerID);
+                rankBoardBehaviour.HandleChangeScore(player.OwnerClientId, true);
             }
 
             //실제로 서버에서 3초후 리스폰 되도록 함수를 만들어
