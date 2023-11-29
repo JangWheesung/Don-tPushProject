@@ -109,6 +109,9 @@ public class RankBoardBehaviour : NetworkBehaviour
             };
             break;
         }
+        //_rankUIList.Sort();
+        //_rankList.
+        //_rankList.Sort((x, y) => x.score.CompareTo(y.score));
     }
 
 
@@ -128,15 +131,23 @@ public class RankBoardBehaviour : NetworkBehaviour
         }
     }
 
-    private void AdjustScoreToUIList(RankBoardEntityState value)
+    private void AdjustScoreToUIList(RankBoardEntityState value)//된다 씨부럴
     {
+        var target = _rankUIList.Find(x => x.clientID == value.clientID);
+        target.SetText(1, value.playerName.ToString(), value.score);
         //값을 받아서 해당 UI를 찾아서 (올바른 클라이언트 ID) score를 갱신한다.
         // 선택 : 갱신후에는 UIList를 정렬하고 
         // 정렬된 순서에 맞춰서 실제 UI의 순서도 변경한다.
         // RemoveFromParent => Add
-    }
+        _rankUIList.Sort((x, y) => x.nowScore.CompareTo(y.nowScore));
+        for (int i = 0; i < _rankUIList.Count; i++)
+        {
+            var ui = _rankUIList[i];
+            //ui.SetText(i + 1, ui.p);
+        }
+        }
 
-    private void AddUIToList(RankBoardEntityState value)
+        private void AddUIToList(RankBoardEntityState value)
     {
         //중복이 있는지 검사후에 만들어서 
         var target = _rankUIList.Find(x => x.clientID == value.clientID);
@@ -156,6 +167,7 @@ public class RankBoardBehaviour : NetworkBehaviour
         var target = _rankUIList.Find(x => x.clientID == clientID);
         if(target != null)
         {
+            Debug.Log("UIDestroy");
             _rankUIList.Remove(target);
             Destroy(target.gameObject);
         }

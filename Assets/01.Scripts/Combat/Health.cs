@@ -27,7 +27,7 @@ public class Health : NetworkBehaviour
     {
         if (!Physics2D.OverlapCircle(transform.position, transform.localScale.x, LayerMask.GetMask("SafeRange")) && !_isDead)
         {
-            Debug.Log("аж╠щ");
+            Debug.Log("overDead");
             _isDead = true;
             OnDie?.Invoke(this);
         }

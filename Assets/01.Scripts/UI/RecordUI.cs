@@ -7,6 +7,10 @@ public class RecordUI : MonoBehaviour
 
     public ulong clientID;
 
+    public int nowRank { get; private set; }
+    public int nowScore { get; private set; }
+    public int nowUsername { get; private set; }
+
     private void Awake()
     {
         _recordText = GetComponent<TextMeshProUGUI>();
@@ -19,6 +23,7 @@ public class RecordUI : MonoBehaviour
 
     public void SetText(int rank, string username, int score)
     {
+        nowScore = score;
         _recordText.SetText($"{rank.ToString()} . {username} [ {score.ToString()} ]");
     }
 }

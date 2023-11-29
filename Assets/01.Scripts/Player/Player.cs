@@ -23,6 +23,7 @@ public class Player : NetworkBehaviour
 
     private void HandleDie(Health health) //Á×´ÂÈ¿°ú
     {
+        Debug.Log(IsServer);
         if (IsServer)
         {
             Destroy(gameObject);
