@@ -23,20 +23,50 @@ public class DealDamageOnContact : NetworkBehaviour
         StartCoroutine(playerMovement.NuckBack(vec));
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.attachedRigidbody == null) return;
 
-        if (collision.attachedRigidbody.TryGetComponent<Health>(out Health health))
+        Debug.Log(123);
+
+        if (!IsOwner) return;
+        //if (collision.attachedRigidbody == null) return;
+
+        if (collision.transform.TryGetComponent<Health>(out Health health))
         {
             health.TakeID(OwnerClientId);
         }
 
-        if (playerMovement.isDash && collision.attachedRigidbody.TryGetComponent<DealDamageOnContact>
+        Debug.Log(playerMovement.isDash);
+
+        if (playerMovement.isDash && collision.transform.TryGetComponent<DealDamageOnContact>
             (out DealDamageOnContact dealDamageOnContact))
-        {
-            Instantiate(test1, dealDamageOnContact.transform.position, Quaternion.identity);
-            dealDamageOnContact.Slickback(Vector2.left);
+        {//이로써 3번의 충돌 중 한번은 자기 참조
+            //서버rpc 날리기
+            //Instantiate(test1, dealDamageOnContact.transform.position, Quaternion.identity);
+            //dealDamageOnContact.Slickback(Vector2.left);
+            Debug.Log("F");
+            StartCoroutine(playerMovement.Noise());
+            dealDamageOnContact.KnockBackServerRPC(playerMovement.dashVec);
+
         }
+
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void KnockBackServerRPC(Vector3 dir) 
+    {
+
+        KnockBackClientRPC(dir);//
+
+    }
+
+    [ClientRpc]
+    private void KnockBackClientRPC(Vector3 dir) 
+    {
+
+        Instantiate(test2, transform.position, Quaternion.identity);
+        Slickback(dir);
+
+    }
+
 }

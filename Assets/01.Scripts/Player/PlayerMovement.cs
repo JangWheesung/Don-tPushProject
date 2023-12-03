@@ -3,20 +3,27 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using Cinemachine;
 
 public class PlayerMovement : NetworkBehaviour
 {
     [SerializeField] private InputReader _inputReader;
+    [Header("자식 요소들")]
+    [SerializeField] private CinemachineVirtualCamera vCam;
+    [SerializeField] private ParticleSystem dashParticle;
+    [Header("수치")]
     [SerializeField] private float _movementSpeed;
     [SerializeField] private float _dashSpeed;
+    [SerializeField] private float _dashTime;
     [SerializeField] private float _nuckbackDelay;
     [SerializeField] private float maxVelocity;
     
     [HideInInspector] public Rigidbody2D _rigidbody2D;
     [HideInInspector] public Vector2 dashVec;
+
+    private CinemachineBasicMultiChannelPerlin noise;
     private PlayerAnimation _playerAnimation;
     private Vector2 _movementInput;
-    [SerializeField] private GameObject dast;
 
     public bool isDash { get; private set; }
     public bool isBack { get; private set; }
@@ -24,6 +31,7 @@ public class PlayerMovement : NetworkBehaviour
     private void Awake()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
+        noise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         _playerAnimation = transform.Find("Visual").GetComponent<PlayerAnimation>();
     }
 
@@ -51,6 +59,9 @@ public class PlayerMovement : NetworkBehaviour
         if (_rigidbody2D.velocity == Vector2.zero || isDash || isBack) return;
 
         isDash = true;
+
+        dashParticle.Play();
+
         dashVec = _rigidbody2D.velocity.normalized;
         _rigidbody2D.velocity = dashVec * _dashSpeed;
         StartCoroutine(DashColldown());
@@ -58,7 +69,7 @@ public class PlayerMovement : NetworkBehaviour
 
     IEnumerator DashColldown()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(_dashTime);
         dashVec = Vector2.zero;
         _rigidbody2D.velocity = dashVec;
         isDash = false;
@@ -109,10 +120,20 @@ public class PlayerMovement : NetworkBehaviour
         isBack = true;
         isDash = false;
         StopCoroutine(DashColldown());
-        //Instantiate(dast, vec, Quaternion.identity);
+        StartCoroutine(Noise());
+
         _rigidbody2D.velocity = vec * _dashSpeed;
+
         yield return new WaitForSeconds(_nuckbackDelay);
+
         _rigidbody2D.velocity = Vector2.zero;
         isBack = false;
+    }
+
+    public IEnumerator Noise()
+    {
+        noise.m_FrequencyGain = 1;
+        yield return new WaitForSeconds(0.2f);
+        noise.m_FrequencyGain = 0;
     }
 }
