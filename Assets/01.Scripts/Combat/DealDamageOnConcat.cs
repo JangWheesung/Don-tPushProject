@@ -56,7 +56,7 @@ public class DealDamageOnContact : NetworkBehaviour
     public void KnockBackServerRPC(Vector3 dir) 
     {
 
-        KnockBackClientRPC(dir);//
+        KnockBackClientRPC(dir);
 
     }
 

@@ -28,11 +28,11 @@ public class Player : NetworkBehaviour
 
     private void HandleDie(Health health) //죽는효과
     {
+        dieParticle.Play();
+        StartCoroutine(playerMovement.Noise(false));
+        spriteRenderer.color = Color.gray;
         if (IsServer)
         {
-            dieParticle.Play();
-            StartCoroutine(playerMovement.Noise(false));
-            spriteRenderer.color = Color.gray;
             StartCoroutine(DieDelay());
         }
         //여기다가 파티클이나 뭐 죽는 효과 같은게 나와야겠지만...일단은.
@@ -80,7 +80,7 @@ public class Player : NetworkBehaviour
 
     private IEnumerator DieDelay()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         Destroy(gameObject);
     }
 }

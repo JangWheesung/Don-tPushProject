@@ -47,7 +47,7 @@ public class RespawnManager : NetworkBehaviour
 
     IEnumerator DelayRespawn(ulong clientID)
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(0.35f);
         ServerSingleton.Instance.NetServer.RespawnPlayer(clientID);
     }
 }

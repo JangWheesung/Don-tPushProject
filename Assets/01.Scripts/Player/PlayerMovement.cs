@@ -39,6 +39,7 @@ public class PlayerMovement : NetworkBehaviour
         _playerAnimation = transform.Find("Visual").GetComponent<PlayerAnimation>();
 
         _mainCam = Camera.main;
+        canDash = true;
     }
 
     public override void OnNetworkSpawn()
@@ -76,7 +77,7 @@ public class PlayerMovement : NetworkBehaviour
 
         Vector3 dir = (worldPos - transform.position).normalized;
 
-        dashVec = (worldPos - transform.position).normalized;
+        dashVec = dir;
         _rigidbody2D.velocity = dashVec * _dashSpeed;
         StartCoroutine(DashColldown());
     }
@@ -93,7 +94,7 @@ public class PlayerMovement : NetworkBehaviour
     IEnumerator DashDelay()
     {
         yield return new WaitForSeconds(_dashDelay);
-        isDash = true;
+        canDash = true;
     }
 
     private void FixedUpdate()
@@ -156,7 +157,7 @@ public class PlayerMovement : NetworkBehaviour
         if(isHit)
             hitParticle.Play();
         noise.m_FrequencyGain = 1;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         noise.m_FrequencyGain = 0;
     }
 }
