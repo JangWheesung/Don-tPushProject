@@ -7,6 +7,7 @@ using static UnityEngine.Rendering.DebugUI;
 public class RankBoardBehaviour : NetworkBehaviour
 {
     [SerializeField] private RecordUI _recordPrefab;
+    [SerializeField] private RecordUI _myRecord;
     [SerializeField] private RectTransform _recordParentTrm;
 
     private NetworkList<RankBoardEntityState> _rankList;
@@ -140,8 +141,14 @@ public class RankBoardBehaviour : NetworkBehaviour
         for (int i = 0; i < _rankUIList.Count; i++)
         {
             var ui = _rankUIList[i];
-            ui.SetText(i + 1, ui.nowUsername, ui.nowScore);
+            bool numberOwn = i == 0 ? true : false;
+            ui.SetText(i + 1, ui.nowUsername, ui.nowScore, numberOwn);
             ui.transform.SetSiblingIndex(i);
+
+            if (_rankUIList[i].clientID == NetworkManager.Singleton.LocalClientId)
+            {
+                _myRecord.SetText(i + 1, ui.nowUsername, ui.nowScore);
+            }
         }
     }
 
@@ -157,6 +164,7 @@ public class RankBoardBehaviour : NetworkBehaviour
         //만들때 clientID넣어주는거 잊지말자.
         //UI에 추가하고 차후 중복검사를 위해서 _rankUIList 에도 넣어준다.
         _rankUIList.Add(newUI);
+        AdjustScoreToUIList(value);
     }
 
     private void RemoveFromUIList(ulong clientID)

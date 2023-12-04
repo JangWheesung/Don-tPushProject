@@ -124,13 +124,13 @@ public class PlayerMovement : NetworkBehaviour
             _rigidbody2D.velocity += new Vector2(0, desiredVelocity.y);
         }
 
-        if (_movementInput.x == 0 && _rigidbody2D.velocity.x != 0)
+        if (_movementInput.x == 0 && Mathf.Abs(_rigidbody2D.velocity.x) >= 0.15f)
         {
             float symbol = _rigidbody2D.velocity.x > 0 ? -1f : 1f;
             _rigidbody2D.velocity += new Vector2(symbol * _movementSpeed / 2, 0);
         }
 
-        if (_movementInput.y == 0 && _rigidbody2D.velocity.y != 0)
+        if (_movementInput.y == 0 && Mathf.Abs(_rigidbody2D.velocity.y) >= 0.15f)
         {
             float symbol = _rigidbody2D.velocity.y > 0 ? -1f : 1f;
             _rigidbody2D.velocity += new Vector2(0, symbol * _movementSpeed / 2);

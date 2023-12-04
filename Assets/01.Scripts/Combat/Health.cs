@@ -33,6 +33,22 @@ public class Health : NetworkBehaviour
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void TakeIDServerRPC(ulong dealerID)
+    {
+        if (_isDead) return;
+        Debug.Log("NoDead");
+        LastHitDealerID = dealerID;
+
+        if (resetCoroutine != null)
+        {
+            StopCoroutine(resetCoroutine);
+        }
+        resetCoroutine = StartCoroutine(DeleteID());
+
+        //TakeIDClientRPC(dealerID);
+    }
+
     public void TakeID(ulong dealerID)
     {
         if (_isDead) return;

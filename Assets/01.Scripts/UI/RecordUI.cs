@@ -21,11 +21,16 @@ public class RecordUI : MonoBehaviour
         clientID = ownerID;
     }
 
-    public void SetText(int rank, string username, int score)
+    public void SetText(int rank, string username, int score, bool isOwn = false)
     {
         nowRank = rank;
         nowUsername = username;
         nowScore = score;
+
+        if(isOwn)
+            _recordText.color = Color.yellow;
+        else
+            _recordText.color = Color.white;
         _recordText.SetText($"{rank.ToString()} . {username} [ {score.ToString()} ]");
     }
 }

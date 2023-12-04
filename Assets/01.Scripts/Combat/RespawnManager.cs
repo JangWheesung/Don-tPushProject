@@ -11,13 +11,23 @@ public class RespawnManager : NetworkBehaviour
         // Player에 있는  OnPlayerDespawn을 구독하고
         // 또 구독해제도 해야해. 누가? 서버만 해야해
         if (!IsServer) return;
+        Player.OnPlayerSpawned += HandlePlayerSpawn;
         Player.OnPlayerDeSpawned += HandlePlayerDeSpawn;
     }
 
     public override void OnNetworkDespawn()
     {
         if (!IsServer) return;
+        Player.OnPlayerSpawned -= HandlePlayerSpawn;
         Player.OnPlayerDeSpawned -= HandlePlayerDeSpawn;
+    }
+    private void HandlePlayerSpawn(Player player)
+    {
+        UserData victimUserData = ServerSingleton.Instance.NetServer.GetUserDataByClientID(player.OwnerClientId);
+        if (victimUserData != null)
+        {
+            rankBoardBehaviour.HandleChangeScore(player.OwnerClientId, true);
+        }
     }
 
 
@@ -35,8 +45,8 @@ public class RespawnManager : NetworkBehaviour
             {
                 Debug.Log($"{victimUserData.username} is dead by {killerUserdata.username} [{killerID}]");
                 rankBoardBehaviour.HandleChangeScore(killerID);
-                rankBoardBehaviour.HandleChangeScore(player.OwnerClientId, true);
             }
+            rankBoardBehaviour.HandleChangeScore(player.OwnerClientId, true);
 
             //실제로 서버에서 3초후 리스폰 되도록 함수를 만들어
             StartCoroutine(DelayRespawn(player.OwnerClientId));
