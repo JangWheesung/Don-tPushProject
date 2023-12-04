@@ -2,31 +2,38 @@ using Cinemachine;
 using System;
 using TMPro;
 using Unity.Collections;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
     [SerializeField] private TextMeshPro _nameText;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private CinemachineVirtualCamera _followCam;
+    [SerializeField] private ParticleSystem dieParticle;
 
     public static event Action<Player> OnPlayerSpawned;
     public static event Action<Player> OnPlayerDeSpawned;
 
     public Health HealthCompo { get; private set; }
+    private PlayerMovement playerMovement;
     private NetworkVariable<FixedString32Bytes> _username = new NetworkVariable<FixedString32Bytes>();
 
     private void Awake()
     {
         HealthCompo = GetComponent<Health>();
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     private void HandleDie(Health health) //죽는효과
     {
-        Debug.Log(IsServer);
         if (IsServer)
         {
-            Destroy(gameObject);
+            dieParticle.Play();
+            StartCoroutine(playerMovement.Noise(false));
+            spriteRenderer.color = Color.gray;
+            StartCoroutine(DieDelay());
         }
         //여기다가 파티클이나 뭐 죽는 효과 같은게 나와야겠지만...일단은.
     }
@@ -69,5 +76,11 @@ public class Player : NetworkBehaviour
     public void SetUserName(string username)
     {
         _username.Value = username;
+    }
+
+    private IEnumerator DieDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        Destroy(gameObject);
     }
 }

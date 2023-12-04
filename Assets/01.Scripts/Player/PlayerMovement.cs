@@ -11,10 +11,12 @@ public class PlayerMovement : NetworkBehaviour
     [Header("자식 요소들")]
     [SerializeField] private CinemachineVirtualCamera vCam;
     [SerializeField] private ParticleSystem dashParticle;
+    [SerializeField] private ParticleSystem hitParticle;
     [Header("수치")]
     [SerializeField] private float _movementSpeed;
     [SerializeField] private float _dashSpeed;
     [SerializeField] private float _dashTime;
+    [SerializeField] private float _dashDelay;
     [SerializeField] private float _nuckbackDelay;
     [SerializeField] private float maxVelocity;
     
@@ -24,8 +26,10 @@ public class PlayerMovement : NetworkBehaviour
     private CinemachineBasicMultiChannelPerlin noise;
     private PlayerAnimation _playerAnimation;
     private Vector2 _movementInput;
+    private Camera _mainCam;
 
     public bool isDash { get; private set; }
+    public bool canDash { get; private set; }
     public bool isBack { get; private set; }
 
     private void Awake()
@@ -33,6 +37,8 @@ public class PlayerMovement : NetworkBehaviour
         _rigidbody2D = GetComponent<Rigidbody2D>();
         noise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         _playerAnimation = transform.Find("Visual").GetComponent<PlayerAnimation>();
+
+        _mainCam = Camera.main;
     }
 
     public override void OnNetworkSpawn()
@@ -56,13 +62,21 @@ public class PlayerMovement : NetworkBehaviour
 
     private void HandleDash()
     {
-        if (_rigidbody2D.velocity == Vector2.zero || isDash || isBack) return;
+        if (!canDash || isDash || isBack) return;
 
         isDash = true;
+        canDash = false;
 
         dashParticle.Play();
 
-        dashVec = _rigidbody2D.velocity.normalized;
+        //dashVec를 마우스 포인터가 있는 방향으로
+        Vector2 mousePos = _inputReader.AimPosition;
+        Vector3 worldPos = _mainCam.ScreenToWorldPoint(mousePos);
+        worldPos.z = 0;
+
+        Vector3 dir = (worldPos - transform.position).normalized;
+
+        dashVec = (worldPos - transform.position).normalized;
         _rigidbody2D.velocity = dashVec * _dashSpeed;
         StartCoroutine(DashColldown());
     }
@@ -73,6 +87,13 @@ public class PlayerMovement : NetworkBehaviour
         dashVec = Vector2.zero;
         _rigidbody2D.velocity = dashVec;
         isDash = false;
+        StartCoroutine(DashDelay());
+    }
+
+    IEnumerator DashDelay()
+    {
+        yield return new WaitForSeconds(_dashDelay);
+        isDash = true;
     }
 
     private void FixedUpdate()
@@ -130,8 +151,10 @@ public class PlayerMovement : NetworkBehaviour
         isBack = false;
     }
 
-    public IEnumerator Noise()
+    public IEnumerator Noise(bool isHit = true)
     {
+        if(isHit)
+            hitParticle.Play();
         noise.m_FrequencyGain = 1;
         yield return new WaitForSeconds(0.2f);
         noise.m_FrequencyGain = 0;
