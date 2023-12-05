@@ -34,7 +34,7 @@ public class ApplicationController : MonoBehaviour
             ClientSingleton client = Instantiate(_clientPrefab, transform);
             client.CreateClient(_ipAddress, _port);
 
-            SceneManager.LoadScene(SceneList.Menu);
+            SceneManager.LoadScene(SceneList.Game);
         }
     }
 }

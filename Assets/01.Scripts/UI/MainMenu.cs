@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
+    [SerializeField] private GameObject boardCanvas;
     [SerializeField] private TMP_InputField _txtUsername;
 
 
@@ -15,5 +16,7 @@ public class MainMenu : MonoBehaviour
         };
 
         ClientSingleton.Instance.StartClient(userData);
+        gameObject.SetActive(false);
+        boardCanvas.SetActive(true);
     }
 }

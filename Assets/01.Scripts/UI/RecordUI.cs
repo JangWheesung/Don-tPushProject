@@ -31,6 +31,6 @@ public class RecordUI : MonoBehaviour
             _recordText.color = Color.yellow;
         else
             _recordText.color = Color.white;
-        _recordText.SetText($"{rank.ToString()} . {username} [ {score.ToString()} ]");
+        _recordText.SetText($"#{rank.ToString()} {username}  [{score.ToString()}]");
     }
 }

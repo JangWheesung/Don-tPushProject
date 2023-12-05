@@ -19,12 +19,17 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private float _dashDelay;
     [SerializeField] private float _nuckbackDelay;
     [SerializeField] private float maxVelocity;
-    
+    [Header("참조값")]
+    [SerializeField] private AudioClip dashClip;
+    [SerializeField] private AudioClip hitClip;
+
     [HideInInspector] public Rigidbody2D _rigidbody2D;
     [HideInInspector] public Vector2 dashVec;
 
     private CinemachineBasicMultiChannelPerlin noise;
     private PlayerAnimation _playerAnimation;
+    private AudioSource audioSource;
+
     private Vector2 _movementInput;
     private Camera _mainCam;
 
@@ -37,9 +42,12 @@ public class PlayerMovement : NetworkBehaviour
         _rigidbody2D = GetComponent<Rigidbody2D>();
         noise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         _playerAnimation = transform.Find("Visual").GetComponent<PlayerAnimation>();
+        audioSource = GetComponent<AudioSource>();
 
         _mainCam = Camera.main;
         canDash = true;
+
+        StartCoroutine(Noise(false, 0.5f));
     }
 
     public override void OnNetworkSpawn()
@@ -63,12 +71,16 @@ public class PlayerMovement : NetworkBehaviour
 
     private void HandleDash()
     {
+        if (!IsOwner) return;
         if (!canDash || isDash || isBack) return;
 
         isDash = true;
         canDash = false;
 
+        audioSource.clip = dashClip;
+        audioSource.Play();
         dashParticle.Play();
+        DashParticleServerRPC();
 
         //dashVec를 마우스 포인터가 있는 방향으로
         Vector2 mousePos = _inputReader.AimPosition;
@@ -76,10 +88,23 @@ public class PlayerMovement : NetworkBehaviour
         worldPos.z = 0;
 
         Vector3 dir = (worldPos - transform.position).normalized;
-
         dashVec = dir;
         _rigidbody2D.velocity = dashVec * _dashSpeed;
+
         StartCoroutine(DashColldown());
+    }
+
+    [ServerRpc]
+    public void DashParticleServerRPC()
+    {
+        DashParticleClientRpc();
+    }
+
+    [ClientRpc]
+    private void DashParticleClientRpc()
+    {
+        if(!IsOwner)
+            dashParticle.Play();
     }
 
     IEnumerator DashColldown()
@@ -99,15 +124,16 @@ public class PlayerMovement : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        _playerAnimation.SetMove(_rigidbody2D.velocity.magnitude > 0.1f); 
-        _playerAnimation.FlipController( _rigidbody2D.velocity.x );
+        if (!IsOwner) return;
+
+        _playerAnimation.SetMove(_rigidbody2D.velocity.magnitude > 0.1f);
+        _playerAnimation.FlipController(_rigidbody2D.velocity.x);
 
         Velocity();
     }
 
     private void Velocity()
     {
-        if (!IsOwner) return;
         if (isDash || isBack) return;
 
         Vector2 desiredVelocity = _movementInput.normalized * _movementSpeed;
@@ -124,14 +150,24 @@ public class PlayerMovement : NetworkBehaviour
             _rigidbody2D.velocity += new Vector2(0, desiredVelocity.y);
         }
 
-        if (_movementInput.x == 0 && Mathf.Abs(_rigidbody2D.velocity.x) >= 0.15f)
+        if (_movementInput.x == 0 && _rigidbody2D.velocity.x != 0)
         {
+            if (Mathf.Abs(_rigidbody2D.velocity.x) <= 0.15f)
+            {
+                _rigidbody2D.velocity = new Vector2(0, _rigidbody2D.velocity.y);
+                return;
+            }
             float symbol = _rigidbody2D.velocity.x > 0 ? -1f : 1f;
             _rigidbody2D.velocity += new Vector2(symbol * _movementSpeed / 2, 0);
         }
 
-        if (_movementInput.y == 0 && Mathf.Abs(_rigidbody2D.velocity.y) >= 0.15f)
+        if (_movementInput.y == 0 && _rigidbody2D.velocity.y != 0)
         {
+            if (Mathf.Abs(_rigidbody2D.velocity.y) <= 0.15f)
+            {
+                _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0);
+                return;
+            }
             float symbol = _rigidbody2D.velocity.y > 0 ? -1f : 1f;
             _rigidbody2D.velocity += new Vector2(0, symbol * _movementSpeed / 2);
         }
@@ -141,6 +177,10 @@ public class PlayerMovement : NetworkBehaviour
     {
         isBack = true;
         isDash = false;
+
+        audioSource.clip = hitClip;
+        audioSource.Play();
+
         StopCoroutine(DashColldown());
         StartCoroutine(Noise());
 
@@ -152,12 +192,18 @@ public class PlayerMovement : NetworkBehaviour
         isBack = false;
     }
 
-    public IEnumerator Noise(bool isHit = true)
+    public IEnumerator Noise(bool isHit = true, float dalayTime = 0.3f)
     {
         if(isHit)
             hitParticle.Play();
         noise.m_FrequencyGain = 1;
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(dalayTime);
         noise.m_FrequencyGain = 0;
+    }
+
+    public void DieSound()
+    {
+        audioSource.clip = hitClip;
+        audioSource.Play();
     }
 }
